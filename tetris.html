@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Game</title>
+    <style>
+        body {
+            text-align: center;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+            margin: auto;
+            background: #222;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tetris Game</h1>
+    <canvas id="tetrisCanvas" width="300" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById("tetrisCanvas");
+        const ctx = canvas.getContext("2d");
+        const ROWS = 20;
+        const COLS = 10;
+        const SQ = 30;
+        const EMPTY = "#000";
+
+        function drawSquare(x, y, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x * SQ, y * SQ, SQ, SQ);
+            ctx.strokeStyle = "#FFF";
+            ctx.strokeRect(x * SQ, y * SQ, SQ, SQ);
+        }
+
+        let board = Array.from({ length: ROWS }, () => Array(COLS).fill(EMPTY));
+
+        function drawBoard() {
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    drawSquare(c, r, board[r][c]);
+                }
+            }
+        }
+
+        class Piece {
+            constructor(tetromino, color) {
+                this.tetromino = tetromino;
+                this.color = color;
+                this.tetrominoN = 0;
+                this.activeTetromino = this.tetromino[this.tetrominoN];
+                this.x = 3;
+                this.y = -2;
+            }
+            draw() {
+                this.activeTetromino.forEach((row, r) => {
+                    row.forEach((cell, c) => {
+                        if (cell) drawSquare(this.x + c, this.y + r, this.color);
+                    });
+                });
+            }
+            moveDown() {
+                this.y++;
+                drawBoard();
+                this.draw();
+            }
+        }
+
+        const TETROMINOES = [
+            [[1, 1, 1, 1]],
+            [[1, 1], [1, 1]],
+            [[1, 1, 0], [0, 1, 1]],
+            [[0, 1, 1], [1, 1, 0]],
+            [[0, 1, 0], [1, 1, 1]],
+        ];
+
+        const COLORS = ["cyan", "yellow", "blue", "red", "purple"];
+
+        let piece = new Piece(TETROMINOES[Math.floor(Math.random() * TETROMINOES.length)], COLORS[Math.floor(Math.random() * COLORS.length)]);
+        drawBoard();
+        piece.draw();
+
+        function drop() {
+            piece.moveDown();
+            setTimeout(drop, 500);
+        }
+        drop();
+    </script>
+</body>
+</html>

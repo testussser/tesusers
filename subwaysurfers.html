@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subway Surfers Clone</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+            background: url('background.png') repeat-x;
+            background-size: cover;
+        }
+        .game-over {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            font-size: 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .button {
+            display: block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 18px;
+            color: white;
+            background: #ff0000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div id="gameOverScreen" class="game-over">
+        Game Over!<br>
+        Score: <span id="finalScore">0</span><br>
+        High Score: <span id="highScore">0</span><br>
+        <button onclick="restartGame()" class="button">Restart</button>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let player = {
+            x: canvas.width / 2 - 25,
+            y: canvas.height - 150,
+            width: 50,
+            height: 100,
+            speed: 10,
+            lane: 1
+        };
+        let obstacles = [];
+        let coins = [];
+        let score = 0;
+        let highScore = localStorage.getItem("highScore") || 0;
+        let gameRunning = true;
+        let lanes = [canvas.width / 4, canvas.width / 2, (3 * canvas.width) / 4];
+
+        function drawPlayer() {
+            ctx.fillStyle = "blue";
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        function drawObstacles() {
+            ctx.fillStyle = "red";
+            obstacles.forEach(obstacle => {
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            });
+        }
+
+        function drawCoins() {
+            ctx.fillStyle = "gold";
+            coins.forEach(coin => {
+                ctx.beginPath();
+                ctx.arc(coin.x, coin.y, 10, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function updateObstacles() {
+            obstacles.forEach(obstacle => {
+                obstacle.y += 5;
+                if (obstacle.y > canvas.height) {
+                    obstacles.splice(obstacles.indexOf(obstacle), 1);
+                }
+            });
+        }
+
+        function updateCoins() {
+            coins.forEach(coin => {
+                coin.y += 5;
+                if (coin.y > canvas.height) {
+                    coins.splice(coins.indexOf(coin), 1);
+                }
+            });
+        }
+
+        function checkCollision() {
+            obstacles.forEach(obstacle => {
+                if (
+                    player.x < obstacle.x + obstacle.width &&
+                    player.x + player.width > obstacle.x &&
+                    player.y < obstacle.y + obstacle.height &&
+                    player.y + player.height > obstacle.y
+                ) {
+                    gameOver();
+                }
+            });
+            coins.forEach(coin => {
+                if (
+                    player.x < coin.x + 20 &&
+                    player.x + player.width > coin.x - 20 &&
+                    player.y < coin.y + 20 &&
+                    player.y + player.height > coin.y - 20
+                ) {
+                    score += 10;
+                    coins.splice(coins.indexOf(coin), 1);
+                }
+            });
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            document.getElementById("finalScore").innerText = score;
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem("highScore", highScore);
+            }
+            document.getElementById("highScore").innerText = highScore;
+            document.getElementById("gameOverScreen").style.display = "block";
+        }
+
+        function restartGame() {
+            score = 0;
+            obstacles = [];
+            coins = [];
+            player.x = canvas.width / 2 - 25;
+            document.getElementById("gameOverScreen").style.display = "none";
+            gameRunning = true;
+            gameLoop();
+        }
+
+        function gameLoop() {
+            if (!gameRunning) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPlayer();
+            drawObstacles();
+            drawCoins();
+            updateObstacles();
+            updateCoins();
+            checkCollision();
+            requestAnimationFrame(gameLoop);
+        }
+
+        document.addEventListener("keydown", function(event) {
+            if (event.code === "ArrowLeft" && player.lane > 0) {
+                player.lane--;
+                player.x = lanes[player.lane] - player.width / 2;
+            } else if (event.code === "ArrowRight" && player.lane < 2) {
+                player.lane++;
+                player.x = lanes[player.lane] - player.width / 2;
+            }
+        });
+
+        setInterval(() => {
+            if (gameRunning) {
+                obstacles.push({
+                    x: lanes[Math.floor(Math.random() * 3)] - 25,
+                    y: -100,
+                    width: 50,
+                    height: 100
+                });
+            }
+        }, 2000);
+
+        setInterval(() => {
+            if (gameRunning) {
+                coins.push({
+                    x: lanes[Math.floor(Math.random() * 3)],
+                    y: -50
+                });
+            }
+        }, 3000);
+
+        gameLoop();
+    </script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Militia Style Shooter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        canvas {
+            border: 2px solid white;
+            background-color: #222;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        // Setup canvas
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Set canvas size
+        canvas.width = 800;
+        canvas.height = 600;
+
+        // Player settings
+        let player = {
+            width: 50,
+            height: 50,
+            x: canvas.width / 2 - 25,
+            y: canvas.height - 60,
+            speed: 5,
+            dx: 0
+        };
+
+        // Bullet settings
+        let bullets = [];
+        let bulletSpeed = 4;
+
+        // Enemy settings
+        let enemies = [];
+        let enemySpeed = 2;
+
+        // Key press settings
+        let rightPressed = false;
+        let leftPressed = false;
+        let spacePressed = false;
+
+        // Game settings
+        let score = 0;
+
+        // Key listeners for movement and shooting
+        document.addEventListener("keydown", keyDownHandler, false);
+        document.addEventListener("keyup", keyUpHandler, false);
+
+        function keyDownHandler(e) {
+            if (e.key === "ArrowRight") {
+                rightPressed = true;
+            } else if (e.key === "ArrowLeft") {
+                leftPressed = true;
+            } else if (e.key === " " || e.key === "Spacebar") {
+                spacePressed = true;
+            }
+        }
+
+        function keyUpHandler(e) {
+            if (e.key === "ArrowRight") {
+                rightPressed = false;
+            } else if (e.key === "ArrowLeft") {
+                leftPressed = false;
+            } else if (e.key === " " || e.key === "Spacebar") {
+                spacePressed = false;
+            }
+        }
+
+        // Draw player
+        function drawPlayer() {
+            ctx.beginPath();
+            ctx.rect(player.x, player.y, player.width, player.height);
+            ctx.fillStyle = "#00FF00";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // Draw bullets
+        function drawBullets() {
+            for (let i = 0; i < bullets.length; i++) {
+                let b = bullets[i];
+                ctx.beginPath();
+                ctx.rect(b.x, b.y, b.width, b.height);
+                ctx.fillStyle = "#FF0000";
+                ctx.fill();
+                ctx.closePath();
+            }
+        }
+
+        // Draw enemies
+        function drawEnemies() {
+            for (let i = 0; i < enemies.length; i++) {
+                let e = enemies[i];
+                ctx.beginPath();
+                ctx.rect(e.x, e.y, e.width, e.height);
+                ctx.fillStyle = "#FFFF00";
+                ctx.fill();
+                ctx.closePath();
+            }
+        }
+
+        // Move player
+        function movePlayer() {
+            if (rightPressed && player.x < canvas.width - player.width) {
+                player.x += player.speed;
+            }
+            if (leftPressed && player.x > 0) {
+                player.x -= player.speed;
+            }
+        }
+
+        // Move bullets
+        function moveBullets() {
+            for (let i = 0; i < bullets.length; i++) {
+                let b = bullets[i];
+                b.y -= bulletSpeed;
+
+                // Remove bullets that go off screen
+                if (b.y < 0) {
+                    bullets.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        // Move enemies
+        function moveEnemies() {
+            for (let i = 0; i < enemies.length; i++) {
+                let e = enemies[i];
+                e.y += enemySpeed;
+
+                // Remove enemies that go off screen
+                if (e.y > canvas.height) {
+                    enemies.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        // Check for collisions between bullets and enemies
+        function checkCollisions() {
+            for (let i = 0; i < bullets.length; i++) {
+                let b = bullets[i];
+                for (let j = 0; j < enemies.length; j++) {
+                    let e = enemies[j];
+                    if (b.x < e.x + e.width &&
+                        b.x + b.width > e.x &&
+                        b.y < e.y + e.height &&
+                        b.y + b.height > e.y) {
+
+                        enemies.splice(j, 1);
+                        bullets.splice(i, 1);
+                        score += 10;
+                        i--;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Create new enemy
+        function createEnemy() {
+            let enemyWidth = 50;
+            let enemyHeight = 50;
+            let x = Math.random() * (canvas.width - enemyWidth);
+            let y = -enemyHeight;
+
+            enemies.push({ x, y, width: enemyWidth, height: enemyHeight });
+        }
+
+        // Create bullet
+        function createBullet() {
+            let bulletWidth = 5;
+            let bulletHeight = 20;
+            let x = player.x + player.width / 2 - bulletWidth / 2;
+            let y = player.y;
+
+            bullets.push({ x, y, width: bulletWidth, height: bulletHeight });
+        }
+
+        // Draw score
+        function drawScore() {
+            ctx.font = "16px Arial";
+            ctx.fillStyle = "#FFFFFF";
+            ctx.fillText("Score: " + score, 8, 20);
+        }
+
+        // Game over logic
+        function gameOver() {
+            for (let i = 0; i < enemies.length; i++) {
+                let e = enemies[i];
+                if (e.y + e.height > player.y) {
+                    alert("Game Over! Score: " + score);
+                    document.location.reload();
+                }
+            }
+        }
+
+        // Main game loop
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            movePlayer();
+            moveBullets();
+            moveEnemies();
+            checkCollisions();
+            gameOver();
+
+            drawPlayer();
+            drawBullets();
+            drawEnemies();
+            drawScore();
+
+            if (spacePressed) {
+                createBullet();
+                spacePressed = false;
+            }
+
+            if (Math.random() < 0.02) {  // Adjust the enemy spawn rate
+                createEnemy();
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        update();
+    </script>
+</body>
+</html>
