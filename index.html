@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Zone</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #444;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .game-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px;
+        }
+        .game-card {
+            background: #333;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s;
+        }
+        .game-card:hover {
+            transform: scale(1.05);
+        }
+        .game-card img {
+            width: 150px;
+            height: 150px;
+            border-radius: 10px;
+        }
+        .game-card button {
+            display: block;
+            margin: 10px auto;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .game-card button:hover {
+            transform: translateY(-3px);
+        }
+        .game-card:nth-child(1) button {
+            background: linear-gradient(45deg, #ff0000, #ff7300);
+            color: white;
+        }
+        .game-card:nth-child(2) button {
+            background: linear-gradient(45deg, #1e90ff, #00bfff);
+            color: white;
+        }
+        .game-card:nth-child(3) button {
+            background: linear-gradient(45deg, #32cd32, #00fa9a);
+            color: white;
+        }
+        .game-card:nth-child(4) button {
+            background: linear-gradient(45deg, #8a2be2, #9400d3);
+            color: white;
+        }
+        .game-card:nth-child(5) button {
+            background: linear-gradient(45deg, #ff1493, #ff69b4);
+            color: white;
+        }
+        .game-card:nth-child(6) button {
+            background: linear-gradient(45deg, #ff1493, #ff69b4);
+            color: white;
+        }
+        .game-card button:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome to Game Zone</h1>
+    </header>
+    <main>
+        <div class="game-container">
+            <div class="game-card">
+                <img src="assets/flappybird.jpg" alt="Flappy Bird">
+                <button onclick="location.href='flappybird.html'">Play Flappy Bird</button>
+            </div>
+            <div class="game-card">
+                <img src="subwaysurfers.jpg" alt="Subway Surfers">
+                <button onclick="location.href='subwaysurfers.html'">Play Subway Surfers</button>
+            </div>
+            <div class="game-card">
+                <img src="minimilitia.jpg" alt="Mini Militia">
+                <button onclick="location.href='minimilitia.html'">Play Mini Militia</button>
+            </div>
+            <div class="game-card">
+                <img src="pong.jpg" alt="Pong">
+                <button onclick="location.href='pong.html'">Play Pong</button>
+            </div>
+            <div class="game-card">
+                <img src="tetris.jpg" alt="Tetris">
+                <button onclick="location.href='tetris.html'">Play Tetris</button>
+            </div>
+            <div class="game-card">
+                <img src="breakout.jpg" alt="Breakout">
+                <button onclick="location.href='breakout.html'">Play Breakout</button>
+            </div>
+        </div>
+    </main>
+    <script>
+        document.querySelectorAll('.game-card button').forEach(button => {
+            button.addEventListener('mouseover', () => {
+                button.style.transform = 'scale(1.1)';
+            });
+            button.addEventListener('mouseout', () => {
+                button.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>
