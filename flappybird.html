@@ -46,7 +46,7 @@
     <script>
         let canvas = document.getElementById("gameCanvas");
         let ctx = canvas.getContext("2d");
-
+        
         let bird = new Image();
         let bg = new Image();
         let fg = new Image();
@@ -58,21 +58,30 @@
         fg.src = "fg.png";
         pipeNorth.src = "pipeNorth.png";
         pipeSouth.src = "pipeSouth.png";
-
-        let gap = 160;
-        let gravity = 0.7;
-        let lift = -13;
-        let birdX = 100;
-        let birdY = 200;
-        let velocity = -7;
+        
+        let gap = 200;
+        let gravity = 0.2;
+        let lift = -5;
+        let birdX = 400;
+        let birdY = 300;
+        let velocity = -1;
         let pipes = [];
         let score = 0;
-        let highScore = 0;
+        let highScore = localStorage.getItem("highScore") || 0;
         let gameRunning = false;
+        let gameStarted = false;
+        
+        document.getElementById("highScore").innerText = "High Score: " + highScore;
         
         document.addEventListener("keydown", function(event) {
-            if (event.code === "Space" && gameRunning) {
-                velocity = lift;
+            if (event.code === "Space") {
+                if (!gameStarted) {
+                    gameStarted = true;
+                    velocity = lift;
+                    draw();
+                } else if (gameRunning) {
+                    velocity = lift;
+                }
             }
         });
         
@@ -80,7 +89,7 @@
             let countdownEl = document.getElementById("countdown");
             let startButton = document.getElementById("startButton");
             startButton.style.display = "none";
-            let count = 3;
+            let count = 1;
             countdownEl.innerText = count;
             
             let countdownInterval = setInterval(() => {
@@ -96,10 +105,11 @@
         
         function initializeGame() {
             pipes = [{ x: canvas.width, y: Math.floor(Math.random() * (canvas.height / 2)) - pipeNorth.height }];
-            birdY = 200;
-            velocity = 0;
+            birdY = 100;
+            velocity = 10;
             score = 0;
             gameRunning = true;
+            gameStarted = false;
             draw();
         }
         
@@ -119,7 +129,11 @@
                     pipes.push({ x: canvas.width, y: Math.floor(Math.random() * (canvas.height / 2)) - pipeNorth.height });
                 }
                 
-                if (birdX + bird.width >= pipeX && birdX <= pipeX + pipeNorth.width && (birdY <= pipeY + pipeNorth.height || birdY + bird.height >= pipeY + pipeNorth.height + gap) || birdY + bird.height >= canvas.height - fg.height) {
+                if (
+                    birdX + bird.width >= pipeX && birdX <= pipeX + pipeNorth.width && 
+                    (birdY <= pipeY + pipeNorth.height || birdY + bird.height >= pipeY + pipeNorth.height + gap) || 
+                    birdY + bird.height >= canvas.height - fg.height
+                ) {
                     gameOver();
                     return;
                 }
@@ -128,6 +142,7 @@
                     score++;
                     if (score > highScore) {
                         highScore = score;
+                        localStorage.setItem("highScore", highScore);
                         document.getElementById("highScore").innerText = "High Score: " + highScore;
                     }
                 }
