@@ -59,12 +59,12 @@
         pipeNorth.src = "pipeNorth.png";
         pipeSouth.src = "pipeSouth.png";
         
-        let gap = 200;
+        let gap = 150;
         let gravity = 0.2;
         let lift = -5;
-        let birdX = 400;
+        let birdX = 200;
         let birdY = 300;
-        let velocity = -1;
+        let velocity = 0;
         let pipes = [];
         let score = 0;
         let highScore = localStorage.getItem("highScore") || 0;
@@ -77,6 +77,7 @@
             if (event.code === "Space") {
                 if (!gameStarted) {
                     gameStarted = true;
+                    gameRunning = true;
                     velocity = lift;
                     draw();
                 } else if (gameRunning) {
@@ -108,7 +109,7 @@
             birdY = 100;
             velocity = 0;
             score = 0;
-            gameRunning = true;
+            gameRunning = false;
             gameStarted = false;
             draw();
         }
